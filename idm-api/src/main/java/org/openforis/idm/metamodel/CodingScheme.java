@@ -1,54 +1,37 @@
 package org.openforis.idm.metamodel;
 
-import java.util.List;
+import java.io.Serializable;
 
-/**
- * @author G. Miceli
- * @author M. Togna
- */
-public interface CodingScheme {
-	public enum CodeType {
-		NUMERIC, ALPHANUMERIC
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlType;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+
+import org.openforis.idm.metamodel.CodeList.CodeScope;
+import org.openforis.idm.metamodel.CodeList.CodeType;
+import org.openforis.idm.metamodel.xml.internal.CodeScopeAdapter;
+import org.openforis.idm.metamodel.xml.internal.CodeTypeAdapter;
+
+@XmlAccessorType(XmlAccessType.FIELD)
+@XmlType(name = "", propOrder = {  "codeScope", "codeType" }) 
+class CodingScheme implements Serializable {
+
+	private static final long serialVersionUID = 1L;
+
+	@XmlAttribute(name = "scope")
+	@XmlJavaTypeAdapter(CodeScopeAdapter.class)
+	private CodeScope codeScope;
+
+	@XmlAttribute(name = "type")
+	@XmlJavaTypeAdapter(CodeTypeAdapter.class)
+	private CodeType codeType;
+
+	public CodeType getCodeType() {
+		return this.codeType;
 	}
 
-	public enum CodeScope {
-		SCHEME, LOCAL
+	public CodeScope getCodeScope() {
+		return this.codeScope;
 	}
-
-	/**
-	 * @return Returns the codeType.
-	 * @uml.property name="codeType"
-	 */
-	public CodingScheme.CodeType getCodeType();
-
-	/**
-	 * @return Returns the codeScope.
-	 * @uml.property name="codeScope"
-	 */
-	public CodingScheme.CodeScope getCodeScope();
-
-	/**
-	 * @return Returns the name.
-	 * @uml.property name="name"
-	 */
-	public String getName();
-
-	/**
-	 * @return Returns the default.
-	 * @uml.property name="default"
-	 */
-	public boolean isDefault();
-
-	/**
-	 * @return Returns the descriptions.
-	 * @uml.property name="descriptions"
-	 */
-	public List<LanguageSpecificText> getDescriptions();
-
-	/**
-	 * @return Returns the labels.
-	 * @uml.property name="labels"
-	 */
-	public List<LanguageSpecificText> getLabels();
-
 }

@@ -1,45 +1,101 @@
+/**
+ * 
+ */
 package org.openforis.idm.metamodel;
 
+import java.io.Serializable;
+import java.util.Collections;
 import java.util.List;
+
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlTransient;
+import javax.xml.bind.annotation.XmlType;
+import javax.xml.bind.annotation.adapters.CollapsedStringAdapter;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+
+import org.openforis.idm.metamodel.xml.internal.XmlInherited;
+import org.openforis.idm.metamodel.xml.internal.XmlParent;
 
 /**
  * @author G. Miceli
  * @author M. Togna
  */
-public interface CodeListItem extends Versionable {
+@XmlAccessorType(XmlAccessType.FIELD)
+@XmlType(name = "", propOrder = { "qualifiable", "sinceVersionName", "deprecatedVersionName", "code", "labels", "descriptions", "childItems" })
+public class CodeListItem extends Versionable implements Serializable {
 
-	/**
-	 * @return Returns the labels.
-	 * @uml.property name="labels" readOnly="true"
-	 */
-	public List<LanguageSpecificText> getLabels();
+	private static final long serialVersionUID = 1L;
 
-	/**
-	 * @return Returns the descriptions.
-	 * @uml.property name="descriptions" readOnly="true"
-	 */
-	public List<LanguageSpecificText> getDescriptions();
+	@XmlAttribute(name = "qualifiable")
+	private Boolean qualifiable;
 
-	/**
-	 * @return Returns the children.
-	 * @uml.property name="children"
-	 * @uml.associationEnd multiplicity="(0 -1)" ordering="true" container="java.util.List" aggregation="composite"
-	 *                     inverse="item1:org.openforis.idm.metamodel.CodeListItem" readOnly="true"
-	 */
-	public List<CodeListItem> getChildren();
+	@XmlElement(name = "code")
+	@XmlJavaTypeAdapter(CollapsedStringAdapter.class)
+	private String code;
 
-	/**
-	 * @return Returns the qualifiable.
-	 * @uml.property name="qualifiable" readOnly="true"
-	 */
-	public boolean isQualifiable();
+	@XmlElement(name = "label", type = LanguageSpecificText.class)
+	private List<LanguageSpecificText> labels;
 
-	/**
-	 * @return Returns the codes.
-	 * @uml.property name="codes"
-	 * @uml.associationEnd multiplicity="(0 -1)" ordering="true" container="java.util.List" aggregation="composite"
-	 *                     inverse="codeListItem:org.openforis.idm.metamodel.CodeDefinition" readOnly="true"
-	 */
-	public List<CodeDefinition> getCodes();
+	@XmlElement(name = "description", type = LanguageSpecificText.class)
+	private List<LanguageSpecificText> descriptions;
 
+	@XmlElement(name = "item", type = CodeListItem.class)
+	private List<CodeListItem> childItems;
+
+	@XmlTransient
+	@XmlInherited("list")
+	@XmlParent
+	private CodeList list;
+
+	@XmlTransient
+	@XmlParent
+	private CodeListItem parentItem;
+	
+	public boolean isQualifiable() {
+		return qualifiable == null ? false : qualifiable;
+	}
+
+	public String getCode() {
+		return code;
+	}
+
+	public List<LanguageSpecificText> getLabels() {
+		if(this.labels != null) {
+			return Collections.unmodifiableList(this.labels);
+		} else {
+			return null;
+		}
+	}
+
+	public List<LanguageSpecificText> getDescriptions() {
+		if(this.descriptions != null) {
+			return Collections.unmodifiableList(this.descriptions);
+		} else {
+			return null;
+		}
+	}
+
+	public List<CodeListItem> getChildItems() {
+		if(this.childItems != null) {
+			return Collections.unmodifiableList(this.childItems);
+		} else {
+			return null;
+		}
+	}
+
+	public CodeListItem getParentItem() {
+		return parentItem;
+	}
+	
+	public CodeList getCodeList() {
+		return list;
+	}
+
+	@Override
+	public Survey getSurvey() {
+		return list == null ? null : list.getSurvey();
+	}
 }

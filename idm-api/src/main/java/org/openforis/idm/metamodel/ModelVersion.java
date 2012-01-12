@@ -1,36 +1,53 @@
+/**
+ * 
+ */
 package org.openforis.idm.metamodel;
 
-import java.util.Date;
+import java.io.Serializable;
+import java.util.Collections;
 import java.util.List;
+
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlType;
 
 /**
  * @author G. Miceli
  * @author M. Togna
  */
-public interface ModelVersion {
+@XmlAccessorType(XmlAccessType.FIELD)
+@XmlType(name = "", propOrder = { "name", "labels", "descriptions", "date" })
+public class ModelVersion implements Serializable {
 
-	/**
-	 * @return Returns the name.
-	 * @uml.property name="name"
-	 */
-	public String getName();
+	private static final long serialVersionUID = 1L;
 
-	/**
-	 * @return Returns the labels.
-	 * @uml.property name="labels"
-	 */
-	public List<LanguageSpecificText> getLabels();
+	@XmlAttribute(name = "name")
+	private String name;
 
-	/**
-	 * @return Returns the date.
-	 * @uml.property name="date"
-	 */
-	public Date getDate();
+	@XmlElement(name = "label", type = LanguageSpecificText.class)
+	private List<LanguageSpecificText> labels;
 
-	/**
-	 * @return Returns the descriptions.
-	 * @uml.property name="descriptions"
-	 */
-	public List<LanguageSpecificText> getDescriptions();
+	@XmlElement(name = "description", type = LanguageSpecificText.class)
+	private List<LanguageSpecificText> descriptions;
 
+	@XmlElement(name = "date")
+	private String date;
+
+	public String getName() {
+		return this.name;
+	}
+
+	public List<LanguageSpecificText> getLabels() {
+		return Collections.unmodifiableList(this.labels);
+	}
+
+	public List<LanguageSpecificText> getDescriptions() {
+		return Collections.unmodifiableList(this.descriptions);
+	}
+
+	public String getDate() {
+		return date;
+	}
 }

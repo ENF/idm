@@ -1,35 +1,56 @@
+/**
+ * 
+ */
 package org.openforis.idm.metamodel;
 
+import java.io.Serializable;
+import java.util.Collections;
 import java.util.List;
+
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
+
 
 /**
  * @author G. Miceli
  * @author M. Togna
  */
-public interface SpatialReferenceSystem {
+@XmlAccessorType(XmlAccessType.FIELD)
+@XmlType(name = "", propOrder = { "id", "labels", "descriptions",  "wellKnownText" })
+@XmlRootElement(name = "spatialReferenceSystem")
+public class SpatialReferenceSystem implements Serializable {
 
-	/**
-	 * @return Returns the id.
-	 * @uml.property name="id"
-	 */
-	public String getId();
+	private static final long serialVersionUID = 1L;
 
-	/**
-	 * @return Returns the labels.
-	 * @uml.property name="labels"
-	 */
-	public List<LanguageSpecificText> getLabels();
+	@XmlAttribute(name = "srid")
+	private String id;
 
-	/**
-	 * @return Returns the descriptions.
-	 * @uml.property name="descriptions"
-	 */
-	public List<LanguageSpecificText> getDescriptions();
+	@XmlElement(name = "label", type = LanguageSpecificText.class)
+	private List<LanguageSpecificText> labels;
 
-	/**
-	 * @return Returns the wellKnownText.
-	 * @uml.property name="wellKnownText"
-	 */
-	public String getWellKnownText();
+	@XmlElement(name = "description", type = LanguageSpecificText.class)
+	private List<LanguageSpecificText> descriptions;
 
+	@XmlElement(name = "wkt")
+	private String wellKnownText;
+
+	public String getId() {
+		return this.id;
+	}
+
+	public List<LanguageSpecificText> getLabels() {
+		return Collections.unmodifiableList(this.labels);
+	}
+
+	public List<LanguageSpecificText> getDescriptions() {
+		return Collections.unmodifiableList(this.descriptions);
+	}
+
+	public String getWellKnownText() {
+		return this.wellKnownText;
+	}
 }

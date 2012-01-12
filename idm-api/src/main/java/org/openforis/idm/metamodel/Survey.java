@@ -1,80 +1,162 @@
 package org.openforis.idm.metamodel;
 
-import java.util.Collection;
+import java.io.Serializable;
+import java.util.Collections;
 import java.util.List;
 
-import org.w3c.dom.Element;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAnyElement;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
+import javax.xml.bind.annotation.XmlType;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+
+import org.openforis.idm.metamodel.xml.internal.ConfigurationXmlAdapter;
+
 
 /**
  * @author G. Miceli
  * @author M. Togna
  */
-public interface Survey {
+@XmlAccessorType(XmlAccessType.FIELD)
+@XmlType(name = "", propOrder = { "name", "projectNames", "cycle", "descriptions", "configuration", "modelVersions",
+		"codeLists", "units", "spatialReferenceSystems", "schema" })
+@XmlRootElement(name = "survey")
+public final class Survey implements Serializable{
 
-	/**
-	 * @return Returns the name.
-	 * @uml.property name="name"
-	 */
-	public String getName();
+	private static final long serialVersionUID = 1L;
 
-	/**
-	 * @return Returns the projectNames.
-	 * @uml.property name="projectNames"
-	 */
-	public List<LanguageSpecificText> getProjectNames();
+	@XmlTransient
+	private Integer id;
+	
+	@XmlElement(name = "name")
+	private String name;
 
-	/**
-	 * @return Returns the cycle.
-	 * @uml.property name="cycle"
-	 */
-	public Integer getCycle();
+	@XmlElement(name = "project", type = LanguageSpecificText.class)
+	private List<LanguageSpecificText> projectNames;
 
-	/**
-	 * @return Returns the descriptions.
-	 * @uml.property name="descriptions"
-	 */
-	public List<LanguageSpecificText> getDescriptions();
+	@XmlElement(name = "cycle")
+	private Integer cycle;
 
-	/**
-	 * @return Returns the configuration.
-	 * @uml.property name="configuration"
-	 */
-	public Element getConfiguration();
+	@XmlElement(name = "description", type = LanguageSpecificText.class)
+	private List<LanguageSpecificText> descriptions;
 
-	/**
-	 * @return Returns the spatialReferenceSystems.
-	 * @uml.property name="spatialReferenceSystems"
-	 * @uml.associationEnd multiplicity="(0 -1)" aggregation="composite" inverse="survey:org.openforis.idm.metamodel.SpatialReferenceSystem"
-	 */
-	public Collection<SpatialReferenceSystem> getSpatialReferenceSystems();
+	@XmlElement(name = "configuration")
+	private ConfigurationWrapper configuration;
+	
+	@XmlElement(name = "version", type = ModelVersion.class)
+	@XmlElementWrapper(name = "versioning")
+	private List<ModelVersion> modelVersions;
 
-	/**
-	 * @return Returns the schema.
-	 * @uml.property name="schema"
-	 * @uml.associationEnd aggregation="composite" inverse="model:org.openforis.idm.metamodel.Schema"
-	 */
-	public Schema getSchema();
+	@XmlElement(name = "list", type = CodeList.class)
+	@XmlElementWrapper(name = "codeLists")
+	private List<CodeList> codeLists;
 
-	/**
-	 * @return Returns the versions.
-	 * @uml.property name="versions"
-	 * @uml.associationEnd multiplicity="(0 -1)" ordering="true" container="java.util.List" aggregation="composite"
-	 *                     inverse="model:org.openforis.idm.metamodel.ModelVersion"
-	 */
-	public List<ModelVersion> getVersions();
+	@XmlElement(name = "unit", type = Unit.class)
+	@XmlElementWrapper(name = "units")
+	private List<Unit> units;
 
-	/**
-	 * @return Returns the codeLists.
-	 * @uml.property name="codeLists"
-	 * @uml.associationEnd multiplicity="(0 -1)" aggregation="composite" inverse="model:org.openforis.idm.metamodel.CodeList"
-	 */
-	public List<CodeList> getCodeLists();
+	@XmlElement(name = "spatialReferenceSystem", type = SpatialReferenceSystem.class)
+	@XmlElementWrapper(name = "spatialReferenceSystems")
+	private List<SpatialReferenceSystem> spatialReferenceSystems;
 
+	@XmlElement(name = "schema", type = Schema.class)
+	private Schema schema;
+
+	public Integer getId() {
+		return id;
+	}
+	
+	public void setId(Integer id) {
+		this.id = id;
+	}
+	
+	public String getName() {
+		return this.name;
+	}
+
+	public List<LanguageSpecificText> getProjectNames() {
+		return Collections.unmodifiableList(this.projectNames);
+	}
+
+	public Integer getCycle() {
+		return this.cycle;
+	}
+
+	public List<LanguageSpecificText> getDescriptions() {
+		return Collections.unmodifiableList(this.descriptions);
+	}
+
+	public List<ModelVersion> getVersions() {
+		return Collections.unmodifiableList(this.modelVersions);
+	}
+
+	public List<CodeList> getCodeLists() {
+		return Collections.unmodifiableList(this.codeLists);
+	}
+
+	public List<Unit> getUnits() {
+		return Collections.unmodifiableList(this.units);
+	}
+
+	public List<SpatialReferenceSystem> getSpatialReferenceSystems() {
+		return Collections.unmodifiableList(this.spatialReferenceSystems);
+	}
+
+	public Schema getSchema() {
+		return this.schema;
+	}
+	
+	public ModelVersion getVersion(String name) {
+		if ( modelVersions != null ) {
+			for (ModelVersion v : modelVersions) {
+				if ( name.equals(v.getName()) ) {
+					return v;
+				}
+			}
+		}
+		return null;
+	}
+
+	public CodeList getCodeList(String name) {
+		for (CodeList codeList : codeLists) {
+			if (codeList.getName().equals(name)) {
+				return codeList;
+			}
+		}
+		return null;
+	}
+
+	public Unit getUnit(String name) {
+		for (Unit unit : units) {
+			if (unit.getName().equals(name)) {
+				return unit;
+			}
+		}
+		return null;
+	}
+
+	@SuppressWarnings("unchecked")
+	public List<Configuration> getConfiguration() {
+		if ( configuration == null ) {
+			return (List<Configuration>) Collections.EMPTY_LIST;
+		} else {
+			return Collections.unmodifiableList(configuration.list);
+		}
+	}
+	
 	/**
-	 * @return Returns the units.
-	 * @uml.property name="units"
-	 * @uml.associationEnd multiplicity="(0 -1)" ordering="true" container="java.util.List" aggregation="composite"
-	 *                     inverse="model:org.openforis.idm.metamodel.Unit"
+	 * Workaround for JAXB since @XmlAnyElement, @XmlElementWrapper and @XmlJavaTypeAdapter 
+	 * wouldn't play nice together
 	 */
-	public List<Unit> getUnits();
+	@XmlAccessorType(XmlAccessType.FIELD)
+	@XmlType
+	private static class ConfigurationWrapper {
+		@XmlAnyElement
+		@XmlJavaTypeAdapter(ConfigurationXmlAdapter.class)
+		List<Configuration> list;
+	}
 }

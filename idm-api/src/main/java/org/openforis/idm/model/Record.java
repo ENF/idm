@@ -1,111 +1,127 @@
+/**
+ * 
+ */
 package org.openforis.idm.model;
 
-import java.util.Date;
 
+import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.openforis.idm.metamodel.EntityDefinition;
 import org.openforis.idm.metamodel.ModelVersion;
+import org.openforis.idm.metamodel.Schema;
+import org.openforis.idm.metamodel.NodeDefinition;
 import org.openforis.idm.metamodel.Survey;
 
 /**
- * @author   G. Miceli
- * @author   M. Togna
+ * @author G. Miceli
+ * @author M. Togna
  */
-public interface Record {
+public class Record {
 
-	/**
-	 * @return   Returns the rootEntity.
-	 * @uml.property  name="rootEntity"
-	 * @uml.associationEnd  
-	 */
-	Entity getRootEntity();
+	private Integer id;
+	private Survey survey;
+	private ModelVersion modelVersion;
+	private Entity rootEntity;
+	private List<RecordObserver> observers;
+	private Map<Integer, Node<? extends NodeDefinition>> nodesById;
+	private int nextId;
 
-	/**
-	 * Setter of the property <tt>rootEntity</tt>
-	 * @param rootEntity   The rootEntity to set.
-	 * @uml.property  name="rootEntity"
-	 */
-	void setRootEntity(Entity rootEntity);
-
-	/**
-	 * @return   Returns the creationDate.
-	 * @uml.property  name="creationDate"
-	 */
-	Date getCreationDate();
-
-	/**
-	 * Setter of the property <tt>creationDate</tt>
-	 * @param creationDate   The creationDate to set.
-	 * @uml.property  name="creationDate"
-	 */
-	void setCreationDate(Date creationDate);
-
-	/**
-	 * @return   Returns the createdBy.
-	 * @uml.property  name="createdBy"
-	 */
-	String getCreatedBy();
-
-	/**
-	 * Setter of the property <tt>createdBy</tt>
-	 * @param createdBy   The createdBy to set.
-	 * @uml.property  name="createdBy"
-	 */
-	void setCreatedBy(String createdBy);
-
-	/**
-	 * @return   Returns the modifiedDate.
-	 * @uml.property  name="modifiedDate"
-	 */
-	Date getModifiedDate();
-
-	/**
-	 * Setter of the property <tt>modifiedDate</tt>
-	 * @param modifiedDate   The modifiedDate to set.
-	 * @uml.property  name="modifiedDate"
-	 */
-	void setModifiedDate(Date modifiedDate);
-
-	/**
-	 * @return   Returns the modifiedBy.
-	 * @uml.property  name="modifiedBy"
-	 */
-	String getModifiedBy();
-
-	/**
-	 * Setter of the property <tt>modifiedBy</tt>
-	 * @param modifiedBy   The modifiedBy to set.
-	 * @uml.property  name="modifiedBy"
-	 */
-	void setModifiedBy(String modifiedBy);
-
-	/**
-	 * @return   Returns the id.
-	 * @uml.property  name="id"
-	 */
-	Long getId();
-
-	/**
-	 * Setter of the property <tt>id</tt>
-	 * @param id   The id to set.
-	 * @uml.property  name="id"
-	 */
-	void setId(Long id);
-
-	/**
-	 * @return   Returns the version.
-	 * @uml.property  name="version"
-	 * @uml.associationEnd  
-	 */
-	ModelVersion getVersion();
-
-	/**
-	 * Setter of the property <tt>version</tt>
-	 * @param version   The version to set.
-	 * @uml.property  name="version"
-	 */
-	void setVersion(ModelVersion version);
-
-	Survey getSurvey();
+	public Record(Survey survey, String rootEntityName, String version) {
+		this.survey = survey;
+		Schema schema = survey.getSchema();
+		EntityDefinition rootEntityDefinition = schema.getRootEntityDefinition(rootEntityName);
+		if ( rootEntityDefinition == null ) {
+			throw new IllegalArgumentException("Invalid root entity '"+rootEntity+'"');			
+		}
+		this.modelVersion = survey.getVersion(version);
+		if ( modelVersion == null ) {
+			throw new IllegalArgumentException("Invalid version '"+version+'"');
+		}
+		this.nodesById = new HashMap<Integer, Node<? extends NodeDefinition>>();
+		
+		this.rootEntity = new Entity(rootEntityDefinition);
+		this.nextId = 1;
+		this.rootEntity.setRecord(this);
+//		this.rootEntity.setId(1);
+		this.observers = new ArrayList<RecordObserver>();
+	}
 	
-	// TODO Define arguments... is this needed?
-//	void notifyObservers(Object... args);
+	public Integer getId() {
+		return this.id;
+	}
+
+	public void setId(Integer id) {
+		this.id = id;
+	}
+
+	public Survey getSurvey() {
+		return this.survey;
+	}
+
+	public Entity getRootEntity() {
+		return this.rootEntity;
+	}
+
+	// TODO Need path?
+//	
+//	public void setRootEntity(Entity rootEntity) {
+//		Entity entityImpl = (Entity) rootEntity;
+//		this.rootEntity = entityImpl;
+//		entityImpl.setRecord(this);
+//		entityImpl.setPath("/" + rootEntity.getDefinition().getName());
+//	}
+
+	public ModelVersion getVersion() {
+		return this.modelVersion;
+	}
+
+	@Override
+	public String toString() {
+		StringWriter sw = new StringWriter();
+		sw.append("id: ").append(String.valueOf(id)).append("\n");
+		rootEntity.write(sw, 0);
+		return sw.toString();
+	}
+//	
+//	public void setVersion(ModelVersion modelVersion) {
+//		this.modelVersion = modelVersion;
+//	}
+/*
+	protected void notifyListener(Node<? extends NodeDefinition> node) {
+		this.listener.onStateChange(node);
+	}
+*/
+//
+	public Node<? extends NodeDefinition> getNodeById(int id) {
+		return this.nodesById.get(id);
+	}
+
+	public void addObserver(RecordObserver observer) {
+		observers.add(observer);
+	}
+	
+	public void notifyObservers(Node<?> target, Object... args) {
+//		updateInternal(target);
+		for (RecordObserver observer : observers) {
+			observer.update(target, args);
+		}
+	}
+	
+	protected void put(Node<? extends NodeDefinition> node){
+		this.nodesById.put(node.getId(), node);
+	}
+/*
+	protected void updateInternal(Node<?> target) {
+		nodesById
+		
+	}
+	*/
+
+	protected int nextId() {
+		return nextId++;
+	}
 }

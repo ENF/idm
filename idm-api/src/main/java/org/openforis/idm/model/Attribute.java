@@ -1,36 +1,91 @@
+/**
+ * 
+ */
 package org.openforis.idm.model;
 
-import java.util.List;
+import java.io.StringWriter;
 
 import org.openforis.idm.metamodel.AttributeDefinition;
 
 /**
- * @author   G. Miceli
- * @author   M. Togna
+ * @author M. Togna
+ * @author G. Miceli
  */
-public interface Attribute<D extends AttributeDefinition, V extends Value> extends ModelObject<D> {
+public abstract class Attribute<D extends AttributeDefinition, V> extends Node<D> {
 
-	/**
-	 * @return
-	 * @uml.property  name="value"
-	 */
-	V getValue();
+	public Attribute(D definition) {
+		super(definition);
+	}
 
-	/**
-	 * @param  value
-	 * @uml.property  name="value"
-	 */
-	void setValue(V value);
+	private V value;
+	
+	private AttributeMetadata metadata;
 
-	// DERIVED STATES //
-	
-	List<CheckFailure> getErrors();
-	
-	List<CheckFailure> getWarnings();
+	public V getValue() {
+		return this.value;
+	}
 
-	boolean hasErrors();
+	public void setValue(V value) {
+		this.value = value;
+	}
+
+	public V getDefaultValue() {
+		// TODO Evaluate defaultExpression in definition on value
+		throw new UnsupportedOperationException();
+	}
 	
-	boolean hasWarnings();
+	public AttributeMetadata getMetadata() {
+		return metadata;
+	}
 	
-	V getDefaultValue();
+	public void setMetadata(AttributeMetadata metadata) {
+		this.metadata = metadata;
+	}
+/*
+	public List<CheckFailure> getErrors() {
+		List<CheckFailure> errors = this.errors != null ? this.errors : new ArrayList<CheckFailure>();
+		return Collections.unmodifiableList(errors);
+	}
+
+	@Override
+	public List<CheckFailure> getWarnings() {
+		List<CheckFailure> warnings = this.warnings != null ? this.warnings : new ArrayList<CheckFailure>();
+		return Collections.unmodifiableList(warnings);
+	}
+
+	@Override
+	public boolean hasErrors() {
+		return (this.errors != null) && !this.errors.isEmpty();
+	}
+
+	@Override
+	public boolean hasWarnings() {
+		return (this.warnings != null) && !this.warnings.isEmpty();
+	}
+*/
+/*
+	protected void addError(CheckFailure checkFailure) {
+		if (this.errors == null) {
+			this.errors = new ArrayList<CheckFailure>();
+		}
+		this.errors.add(checkFailure);
+	}
+
+	protected void addWarning(CheckFailure checkFailure) {
+		if (this.warnings == null) {
+			this.warnings = new ArrayList<CheckFailure>();
+		}
+		this.warnings.add(checkFailure);
+	}
+*/
+	@Override
+	protected void write(StringWriter sw, int indent) {
+		for (int i = 0; i < indent; i++) {
+			sw.append('\t');
+		}
+		sw.append(getName());
+		sw.append(": ");
+		sw.append(value == null ? "!!null" : value.toString());
+		sw.append("\n");
+	}
 }

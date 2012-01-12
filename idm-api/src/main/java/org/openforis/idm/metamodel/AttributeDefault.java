@@ -1,22 +1,43 @@
+/**
+ * 
+ */
 package org.openforis.idm.metamodel;
+
+import java.io.Serializable;
+
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlType;
 
 /**
  * @author G. Miceli
  * @author M. Togna
  */
-public interface AttributeDefault {
+@XmlAccessorType(XmlAccessType.FIELD)
+@XmlType(name="", propOrder={"value", "expression", "condition"})
+public class AttributeDefault implements Serializable {
 
-	/**
-	 * @return Returns the expression.
-	 * @uml.property name="expression" readOnly="true"
-	 */
-	public String getExpression();
+	private static final long serialVersionUID = 1L;
 
+	@XmlAttribute(name = "value")
+	private String value;
 
-	/**
-	 * @return Returns the condition.
-	 * @uml.property name="condition" readOnly="true"
-	 */
-	public String getCondition();
+	@XmlAttribute(name = "expr")
+	private String expression;
 
+	@XmlAttribute(name = "if")
+	private String condition;
+
+	public String getValue() {
+		return value;
+	}
+	
+	public String getExpression() {
+		return this.expression;
+	}
+
+	public String getCondition() {
+		return this.condition;
+	}
 }
